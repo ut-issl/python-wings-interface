@@ -44,4 +44,6 @@ class Operation:
         ).json()
 
         if response["ack"] == False:
-            raise Exception("Error has occured while sending {}".format(cmd_code))
+            raise Exception(
+                "An error has occured while sending command ID={}".format(cmd_code)
+            )
