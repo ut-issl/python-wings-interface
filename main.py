@@ -11,23 +11,22 @@ parser.add_argument("--url", type=str, default="http://localhost:5000", help="")
 args = parser.parse_args()
 
 BC_TL_INITIAL = 20
-Cmd_CODE_BCT_ROTATE_BLOCK = 16
 BC_AR_GS_RELATES_PROCESS = 43
-Tlm_CODE_BL = 0x21
+Tlm_CODE_BL = 0x0021
 
 
 def main():
     ope = wings.Operation(operation_idx=0, url=args.url)
-    ope.send_set_block_pos(BC_TL_INITIAL, 0)
+    ope.send_cmd("Cmd_BCT_SET_BLOCK_POSITION", (BC_TL_INITIAL, 0))
     time.sleep(1)
-    ope.send_generate_tlm(Tlm_CODE_BL)
+    ope.send_cmd("Cmd_GENERATE_TLM", (0x40, Tlm_CODE_BL, 1))
     time.sleep(3)
-    bl = ope.get_latest_tlm("BL")
 
-    assert int(bl["CMD0_ID"]) == Cmd_CODE_BCT_ROTATE_BLOCK
-    assert int(bl["CMD0_TI"]) == 0
-    assert int(bl["CMD0_PARAM0"]) == 0
-    assert int(bl["CMD0_PARAM1"]) == BC_AR_GS_RELATES_PROCESS
+    tlm_BL = ope.get_latest_tlm("BL")
+    assert int(tlm_BL["CMD0_ID"]) == ope.get_cmd_id("Cmd_BCT_ROTATE_BLOCK")
+    assert int(tlm_BL["CMD0_TI"]) == 0
+    assert int(tlm_BL["CMD0_PARAM0"]) == 0
+    assert int(tlm_BL["CMD0_PARAM1"]) == BC_AR_GS_RELATES_PROCESS
 
 
 if __name__ == "__main__":

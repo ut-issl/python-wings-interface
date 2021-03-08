@@ -13,37 +13,52 @@ class Operation:
         response = requests.get("{}/api/operations".format(self.url)).json()
         self.operation_id = response["data"][operation_idx]["id"]
 
-    def send_set_block_pos(self, bc_idx: int, cmd_idx: int) -> None:
-        cmd_code = "0x000e"
-        cmd_params = [
-            {"type": "uint16", "value": str(bc_idx)},
-            {"type": "uint8", "value": str(cmd_idx)},
-        ]
-        self._send_cmd(cmd_code, cmd_params)
-
-    def send_generate_tlm(self, tlm_id: int) -> None:
-        cmd_code = "0x0021"
-        cmd_params = [
-            {"type": "uint8", "value": "0x40"},
-            {"type": "uint8", "value": str(tlm_id)},
-            {"type": "uint8", "value": "1"},
-        ]
-        self._send_cmd(cmd_code, cmd_params)
-
     def get_latest_tlm(self, tlm_code_name: str) -> Telemetry:
         response = requests.get(
             "{}/api/operations/{}/tlm".format(self.url, self.operation_id)
         ).json()
         return Telemetry(tlm_code_name, response)
 
-    def _send_cmd(self, cmd_code: str, cmd_params: list) -> None:
-        json_data = {"command": {"code": cmd_code, "params": cmd_params}}
+    def send_cmd(self, cmd_name, cmd_params_value) -> None:
+        response = requests.get(
+            "{}/api/operations/{}/cmd".format(self.url, self.operation_id)
+        ).json()
+
+        for command in response["data"]:
+            if command["name"] != cmd_name:
+                continue
+
+            command_to_send = {"code": command["code"], "params": []}
+
+            for i in range(len(command["params"])):
+                command_to_send["params"].append(
+                    {
+                        "type": command["params"][i]["type"][:-2],
+                        "value": str(cmd_params_value[i]),
+                    }
+                )
+            self._send_cmd(command_to_send)
+            return
+
+        raise Exception('Command name "{}" cannot be found.'.format(cmd_name))
+
+    def _send_cmd(self, command: dict) -> None:
         response = requests.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
-            json=json_data,
+            json={"command": command},
         ).json()
 
         if response["ack"] == False:
             raise Exception(
-                "An error has occured while sending command ID={}".format(cmd_code)
+                "An error has occured while sending command ID={}".format(command)
             )
+
+    def get_cmd_id(self, cmd_name: str) -> int:
+        response = requests.get(
+            "{}/api/operations/{}/cmd".format(self.url, self.operation_id)
+        ).json()
+        for cmd_info in response["data"]:
+            if cmd_info["name"] == cmd_name:
+                return int(cmd_info["code"], 16)
+
+        raise Exception('Command name "{}" cannot be found.'.format(cmd_name))
