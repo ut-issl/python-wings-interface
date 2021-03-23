@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import argparse
 import time
 
 import isslwings as wings
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--url", type=str, default="http://localhost:5000", help="")
-parser.add_argument("--operation_index", type=int, default=-1, help="")
-args = parser.parse_args()
 
 BC_TL_INITIAL = 20
 BC_AR_GS_RELATES_PROCESS = 43
@@ -17,7 +11,7 @@ Tlm_CODE_BL = 0x0021
 
 
 def test_initial_tl():
-    ope = wings.Operation(operation_idx=args.operation_index, url=args.url)
+    ope = wings.Operation()
     ope.send_cmd("Cmd_BCT_SET_BLOCK_POSITION", (BC_TL_INITIAL, 0))
     time.sleep(1)
     ope.send_cmd("Cmd_GENERATE_TLM", (0x40, Tlm_CODE_BL, 1))
