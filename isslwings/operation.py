@@ -7,7 +7,7 @@ from .telemetry import Telemetry
 
 
 class Operation:
-    def __init__(self, operation_idx: int, url: str = "http://localhost:5000"):
+    def __init__(self, operation_idx: int = -1, url: str = "http://localhost:5000"):
         self.url = url
 
         response = requests.get("{}/api/operations".format(self.url)).json()
