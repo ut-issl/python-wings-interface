@@ -50,7 +50,7 @@ class Operation:
 
         if response["ack"] == False:
             raise Exception(
-                "An error has occured while sending command ID={}".format(command)
+                'An error has occured while sending command "{}"'.format(command)
             )
 
     def get_cmd_id(self, cmd_name: str) -> int:
