@@ -5,9 +5,9 @@ localhostで立ち上げたWINGSでのC2A動作試験をpythonで行うために
 
 ## インストール方法
 
-ベータ版で今後IFが大きく変わりうるので、 **インストール非推奨** 。以下参考情報。
-
 特に細かいことを気にしないのであれば開発者モードでインストールする。
+
+インストールしなくてもこのライブラリは使用できるがpytestは実行できず、各testファイルを直接実行する必要がある。
 
 ```
 git clone https://gitlab.com/ut_issl/users/kanta_yangida/python-wings-interface
