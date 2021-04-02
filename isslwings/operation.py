@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import re
+
 import requests
 
 
@@ -58,10 +60,11 @@ class Operation:
             for i in range(len(command["params"])):
                 command_to_send["params"].append(
                     {
-                        "type": command["params"][i]["type"][:-2],
+                        "type": re.sub("_t", "", command["params"][i]["type"]),
                         "value": str(cmd_params_value[i]),
                     }
                 )
+
             self._send_cmd(command_to_send)
             return
 
