@@ -3,8 +3,6 @@
 
 import requests
 
-from .telemetry import Telemetry
-
 
 class Operation:
     def __init__(self, operation_idx: int = -1, url: str = "http://localhost:5000"):
