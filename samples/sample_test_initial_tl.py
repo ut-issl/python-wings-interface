@@ -18,10 +18,10 @@ def test_initial_tl():
     time.sleep(2)
 
     tlm_BL = ope.get_latest_tlm("BL")
-    assert int(tlm_BL["CMD0_ID"]) == ope.get_cmd_id("Cmd_BCT_ROTATE_BLOCK")
-    assert int(tlm_BL["CMD0_TI"]) == 0
-    assert int(tlm_BL["CMD0_PARAM0"]) == 0
-    assert int(tlm_BL["CMD0_PARAM1"]) == BC_AR_GS_RELATES_PROCESS
+    assert tlm_BL["CMD0_ID"] == ope.get_cmd_id("Cmd_BCT_ROTATE_BLOCK")
+    assert tlm_BL["CMD0_TI"] == 0
+    assert tlm_BL["CMD0_PARAM0"] == 0
+    assert tlm_BL["CMD0_PARAM1"] == BC_AR_GS_RELATES_PROCESS
 
 
 if __name__ == "__main__":

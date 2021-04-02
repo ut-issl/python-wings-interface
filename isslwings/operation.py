@@ -13,11 +13,38 @@ class Operation:
         response = requests.get("{}/api/operations".format(self.url)).json()
         self.operation_id = response["data"][operation_idx]["id"]
 
-    def get_latest_tlm(self, tlm_code_name: str) -> Telemetry:
+    def get_latest_tlm(self, tlm_code_name: str) -> dict:
         response = requests.get(
             "{}/api/operations/{}/tlm".format(self.url, self.operation_id)
         ).json()
-        return Telemetry(tlm_code_name, response)
+
+        for response_data in response["data"]:
+            if response_data["packetInfo"]["name"] != tlm_code_name:
+                continue
+
+            telemetry_data = {}
+            telemetries = response_data["telemetries"]
+            for telemetry in telemetries:
+                if telemetry["type"] in [
+                    "int8_t",
+                    "uint8_t",
+                    "int16_t",
+                    "uint16_t",
+                    "int32_t",
+                    "uint32_t",
+                ]:
+                    data = int(telemetry["value"])
+                elif telemetry["type"] in ["float", "double"]:
+                    data = float(telemetry["value"])
+                else:
+                    data = telemetry["value"]
+                telemetry_data[telemetry["name"].strip(tlm_code_name + ".")] = data
+
+            return telemetry_data
+
+        raise Exception(
+            'Telemetry code name "{}" cannot be found.'.format(tlm_code_name)
+        )
 
     def send_cmd(self, cmd_name, cmd_params_value) -> None:
         response = requests.get(
