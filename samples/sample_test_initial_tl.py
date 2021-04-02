@@ -22,3 +22,7 @@ def test_initial_tl():
     assert int(tlm_BL["CMD0_TI"]) == 0
     assert int(tlm_BL["CMD0_PARAM0"]) == 0
     assert int(tlm_BL["CMD0_PARAM1"]) == BC_AR_GS_RELATES_PROCESS
+
+
+if __name__ == "__main__":
+    test_initial_tl()
