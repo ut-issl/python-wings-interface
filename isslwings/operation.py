@@ -45,19 +45,14 @@ class Operation:
             # TODO: テレメデータがない時の例外処理を加える
 
             # strで読み込んでしまっているので、適切な型へcastする
-            if telemetry["type"] in [
-                "int8_t",
-                "uint8_t",
-                "int16_t",
-                "uint16_t",
-                "int32_t",
-                "uint32_t",
-            ]:
+            # int -> float の順で変換に失敗したらstrで読む
+            try:
                 data = int(telemetry["value"])
-            elif telemetry["type"] in ["float", "double"]:
-                data = float(telemetry["value"])
-            else:
-                data = telemetry["value"]
+            except:
+                try:
+                    data = float(telemetry["value"])
+                except:
+                    data = telemetry["value"]
 
             telemetry_data[re.sub(tlm_code_name + ".", "", telemetry["name"])] = data
 
