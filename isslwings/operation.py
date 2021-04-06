@@ -7,10 +7,14 @@ import requests
 
 
 class Operation:
-    def __init__(self, operation_idx: int = -1, url: str = "http://localhost:5000"):
+    def __init__(self, operation_idx: int = 0, url: str = "http://localhost:5000"):
         self.url = url
 
         response = requests.get("{}/api/operations".format(self.url)).json()
+
+        if not response["data"]:
+            raise Exception("Operations don't exist.")
+
         self.operation_id = response["data"][operation_idx]["id"]
 
     def get_latest_tlm(self, tlm_code_name: str) -> dict:
@@ -18,57 +22,79 @@ class Operation:
             "{}/api/operations/{}/tlm".format(self.url, self.operation_id)
         ).json()
 
+        if not response["data"]:
+            raise Exception("Telemetries are not stored.")
+
+        # 該当するtlm_code_nameのテレメ情報を探す
+        tlm_code_is_found = False
         for response_data in response["data"]:
-            if response_data["packetInfo"]["name"] != tlm_code_name:
-                continue
+            if response_data["packetInfo"]["name"] == tlm_code_name:
+                tlm_code_is_found = True
+                break
 
-            telemetry_data = {}
-            telemetries = response_data["telemetries"]
-            for telemetry in telemetries:
-                if telemetry["type"] in [
-                    "int8_t",
-                    "uint8_t",
-                    "int16_t",
-                    "uint16_t",
-                    "int32_t",
-                    "uint32_t",
-                ]:
-                    data = int(telemetry["value"])
-                elif telemetry["type"] in ["float", "double"]:
-                    data = float(telemetry["value"])
-                else:
-                    data = telemetry["value"]
-                telemetry_data[telemetry["name"].strip(tlm_code_name + ".")] = data
+        if not tlm_code_is_found:
+            raise Exception(
+                'Telemetry code name "{}" cannot be found.'.format(tlm_code_name)
+            )
 
-            return telemetry_data
+        telemetry_data = {}
+        telemetries = response_data["telemetries"]
 
-        raise Exception(
-            'Telemetry code name "{}" cannot be found.'.format(tlm_code_name)
-        )
+        for telemetry in telemetries:
 
-    def send_cmd(self, cmd_name, cmd_params_value) -> None:
+            # TODO: テレメデータがない時の例外処理を加える
+
+            # strで読み込んでしまっているので、適切な型へcastする
+            if telemetry["type"] in [
+                "int8_t",
+                "uint8_t",
+                "int16_t",
+                "uint16_t",
+                "int32_t",
+                "uint32_t",
+            ]:
+                data = int(telemetry["value"])
+            elif telemetry["type"] in ["float", "double"]:
+                data = float(telemetry["value"])
+            else:
+                data = telemetry["value"]
+
+            telemetry_data[re.sub(tlm_code_name + ".", "", telemetry["name"])] = data
+
+        return telemetry_data
+
+    def send_cmd(self, cmd_code: int, cmd_params_value: tuple) -> None:
         response = requests.get(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id)
         ).json()
 
+        if not response["data"]:
+            raise Exception("An error has occurred while fetching cmd data.")
+
+        # 該当するcmd_codeのコマンド情報を探す
+        command_is_found = False
         for command in response["data"]:
-            if command["name"] != cmd_name:
-                continue
+            if int(command["code"], base=16) == cmd_code:
+                command_is_found = True
+                break
 
-            command_to_send = {"code": command["code"], "params": []}
+        if not command_is_found:
+            raise Exception('Command name "{}" cannot be found.'.format(cmd_code))
 
-            for i in range(len(command["params"])):
-                command_to_send["params"].append(
-                    {
-                        "type": re.sub("_t", "", command["params"][i]["type"]),
-                        "value": str(cmd_params_value[i]),
-                    }
-                )
+        # とりあえずcodeだけ入れてparamは大変なので後で入れる
+        command_to_send = {"code": command["code"], "params": []}
 
-            self._send_cmd(command_to_send)
-            return
+        # paramは型情報が必要なので、読み込んだコマンド情報から生成
+        for i in range(len(command["params"])):
+            command_to_send["params"].append(
+                {
+                    "type": command["params"][i]["type"],
+                    "value": str(cmd_params_value[i]),
+                }
+            )
 
-        raise Exception('Command name "{}" cannot be found.'.format(cmd_name))
+        self._send_cmd(command_to_send)
+        return
 
     def _send_cmd(self, command: dict) -> None:
         response = requests.post(
@@ -80,13 +106,3 @@ class Operation:
             raise Exception(
                 'An error has occured while sending command "{}"'.format(command)
             )
-
-    def get_cmd_id(self, cmd_name: str) -> int:
-        response = requests.get(
-            "{}/api/operations/{}/cmd".format(self.url, self.operation_id)
-        ).json()
-        for cmd_info in response["data"]:
-            if cmd_info["name"] == cmd_name:
-                return int(cmd_info["code"], 16)
-
-        raise Exception('Command name "{}" cannot be found.'.format(cmd_name))
