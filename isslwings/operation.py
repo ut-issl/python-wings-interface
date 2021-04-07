@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from typing import Tuple
 
 import requests
 
@@ -13,11 +14,11 @@ class Operation:
         response = requests.get("{}/api/operations".format(self.url)).json()
 
         if not response["data"]:
-            raise Exception("Operations don't exist.")
+            raise Exception("Selected operation does not exist.")
 
         self.operation_id = response["data"][operation_idx]["id"]
 
-    def get_latest_tlm(self, tlm_code_name: str) -> dict:
+    def get_latest_tlm(self, tlm_code_id: int) -> Tuple[dict, str]:
         response = requests.get(
             "{}/api/operations/{}/tlm".format(self.url, self.operation_id)
         ).json()
@@ -28,13 +29,13 @@ class Operation:
         # 該当するtlm_code_nameのテレメ情報を探す
         tlm_code_is_found = False
         for response_data in response["data"]:
-            if response_data["packetInfo"]["name"] == tlm_code_name:
+            if int(response_data["packetInfo"]["id"], base=16) == tlm_code_id:
                 tlm_code_is_found = True
                 break
 
         if not tlm_code_is_found:
             raise Exception(
-                'Telemetry code name "{}" cannot be found.'.format(tlm_code_name)
+                'Telemetry code id "{}" cannot be found.'.format(tlm_code_id)
             )
 
         telemetry_data = {}
@@ -54,9 +55,12 @@ class Operation:
                 except:
                     data = telemetry["value"]
 
-            telemetry_data[re.sub(tlm_code_name + ".", "", telemetry["name"])] = data
+            telemetry_data[re.sub(".*\.", "", telemetry["name"])] = data
 
-        return telemetry_data
+        # テレメトリごとに更新時刻は保存されているが、とりあえず先頭を抽出
+        received_time = telemetries[0]["time"]
+
+        return telemetry_data, received_time
 
     def send_cmd(self, cmd_code: int, cmd_params_value: tuple) -> None:
         response = requests.get(
@@ -64,7 +68,7 @@ class Operation:
         ).json()
 
         if not response["data"]:
-            raise Exception("An error has occurred while fetching cmd data.")
+            raise Exception("An error has occurred while fetching cmd info from WINGS.")
 
         # 該当するcmd_codeのコマンド情報を探す
         command_is_found = False
@@ -74,12 +78,12 @@ class Operation:
                 break
 
         if not command_is_found:
-            raise Exception('Command name "{}" cannot be found.'.format(cmd_code))
+            raise Exception('Command code id "{}" cannot be found.'.format(cmd_code))
 
-        # とりあえずcodeだけ入れてparamは大変なので後で入れる
+        # 送信用dictにとりあえずcodeだけ入れて、paramは大変なので後で入れる
         command_to_send = {"code": command["code"], "params": []}
 
-        # paramは型情報が必要なので、読み込んだコマンド情報から生成
+        # paramは型情報が必要なので、最初に読み込んだコマンド情報から生成
         for i in range(len(command["params"])):
             command_to_send["params"].append(
                 {
@@ -89,7 +93,6 @@ class Operation:
             )
 
         self._send_cmd(command_to_send)
-        return
 
     def _send_cmd(self, command: dict) -> None:
         response = requests.post(
@@ -98,6 +101,4 @@ class Operation:
         ).json()
 
         if response["ack"] == False:
-            raise Exception(
-                'An error has occured while sending command "{}"'.format(command)
-            )
+            raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
