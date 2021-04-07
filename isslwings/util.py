@@ -3,11 +3,11 @@
 
 import time
 
-import isslwings as wings
+from .operation import Operation
 
 
 def generate_and_receive_tlm(
-    ope: wings.Operation, cmd_code_generate_tlm: int, tlm_code: int
+    ope: Operation, cmd_code_generate_tlm: int, tlm_code: int
 ) -> dict:
 
     _, received_time_prev = ope.get_latest_tlm(tlm_code)
@@ -24,6 +24,6 @@ def generate_and_receive_tlm(
     raise Exception("No response to GENERATE_TLM.")
 
 
-def send_cmd(ope: wings.Operation, cmd_code: int, cmd_args: tuple) -> None:
+def send_cmd(ope: Operation, cmd_code: int, cmd_args: tuple) -> None:
     ope.send_cmd(cmd_code, cmd_args)
     time.sleep(1)
