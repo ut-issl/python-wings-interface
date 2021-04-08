@@ -55,7 +55,7 @@ class Operation:
                 except:
                     data = telemetry["value"]
 
-            telemetry_data[re.sub(".*\.", "", telemetry["name"])] = data
+            telemetry_data[telemetry["name"]] = data
 
         # テレメトリごとに更新時刻は保存されているが、とりあえず先頭を抽出
         received_time = telemetries[0]["time"]

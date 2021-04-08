@@ -24,10 +24,10 @@ def test_initial_tl():
         ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_BL
     )
 
-    assert tlm_BL["CMD0_ID"] == c2a_enum.Cmd_CODE_BCT_ROTATE_BLOCK
-    assert tlm_BL["CMD0_TI"] == 0
-    assert tlm_BL["CMD0_PARAM0"] == 0
-    assert tlm_BL["CMD0_PARAM1"] == c2a_enum.BC_AR_GS_RELATED_PROCESS
+    assert tlm_BL["BL.CMD0_ID"] == c2a_enum.Cmd_CODE_BCT_ROTATE_BLOCK
+    assert tlm_BL["BL.CMD0_TI"] == 0
+    assert tlm_BL["BL.CMD0_PARAM0"] == 0
+    assert tlm_BL["BL.CMD0_PARAM1"] == c2a_enum.BC_AR_GS_RELATED_PROCESS
 
 
 if __name__ == "__main__":
