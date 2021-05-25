@@ -15,11 +15,11 @@ def generate_and_receive_tlm(
     ope.send_cmd(cmd_code_generate_tlm, (0x40, tlm_code, 1))
 
     for _ in range(5):
+        time.sleep(1)
+
         tlm, received_time_after = ope.get_latest_tlm(tlm_code)
         if received_time_prev != received_time_after:
             return tlm
-
-        time.sleep(1)
 
     raise Exception("No response to GENERATE_TLM.")
 
@@ -40,13 +40,13 @@ def send_cmd_and_confirm(
     ope.send_cmd(cmd_code, cmd_args)
 
     for _ in range(5):
+        time.sleep(1)
+
         tlm_HK, _ = ope.get_latest_tlm(tlm_code_hk)
         command_count_after = tlm_HK["HK.OBC_GS_CMD_COUNTER"]
         command_exec_id = tlm_HK["HK.OBC_GS_CMD_LAST_EXEC_ID"]
 
         if command_count_after > command_count_before and command_exec_id == cmd_code:
             return
-
-        time.sleep(1)
 
     raise Exception("No response to command code:" + str(cmd_code) + ".")
