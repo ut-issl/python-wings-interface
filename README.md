@@ -10,14 +10,14 @@ localhostで立ち上げたWINGSでのC2A動作試験をpythonで行うために
 インストールしなくてもこのライブラリは使用できるがpytestは実行できず、各testファイルを直接実行する必要がある。
 
 ```
-git clone https://gitlab.com/ut_issl/users/kanta_yangida/python-wings-interface
-cd python-wings-interface
+git clone https://gitlab.com/ut_issl/c2a/tools/wings_interface
+cd wings_interface
 pip install -e .
 ```
 
 ## 使い方
 
-以下、`python-wings-interface/` を基準のパスとして考える。
+以下、`wings_interface/` を基準のパスとして考える。
 
 ### サンプルコード
 `samples/sample_test_*.py` を参照。
