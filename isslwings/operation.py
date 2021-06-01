@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import re
 from typing import Tuple
 
 import requests
 
+if os.environ.get("USES_DOCKER") != None:
+    default_url = "http://host.docker.internal:5000"
+else:
+    default_url = "http://localhost:5000"
+
 
 class Operation:
-    def __init__(self, operation_idx: int = 0, url: str = "http://localhost:5000"):
+    def __init__(self, operation_idx: int = 0, url: str = default_url):
         self.url = url
 
         response = requests.get("{}/api/operations".format(self.url)).json()
