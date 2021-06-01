@@ -47,6 +47,6 @@ def send_cmd_and_confirm(
         command_exec_id = tlm_HK["HK.OBC_GS_CMD_LAST_EXEC_ID"]
 
         if command_count_after > command_count_before and command_exec_id == cmd_code:
-            return
+            return tlm_HK["HK.OBC_GS_CMD_LAST_EXEC_STS"]
 
     raise Exception("No response to command code:" + str(cmd_code) + ".")

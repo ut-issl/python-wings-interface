@@ -16,7 +16,7 @@ c2a_enum = c2a.load_enum(c2a_abs_path)
 def test_initial_tl():
     ope = wings.Operation()
 
-    wings.util.send_cmd_and_confirm(
+    res = wings.util.send_cmd_and_confirm(
         ope,
         c2a_enum.Cmd_CODE_BCT_SET_BLOCK_POSITION,
         (c2a_enum.BC_TL_INITIAL, 0),
