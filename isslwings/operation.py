@@ -3,6 +3,7 @@
 
 import os
 import re
+import time
 from typing import Tuple
 
 import requests
@@ -66,15 +67,21 @@ class Operation:
         # テレメトリごとに更新時刻は保存されているが、とりあえず先頭を抽出
         received_time = telemetries[0]["time"]
 
+        time.sleep(0.1)
+
         return telemetry_data, received_time
 
     def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
         self._send_rt_cmd(command_to_send)
 
+        time.sleep(0.1)
+
     def send_bl_cmd(self, ti: int, cmd_code: int, cmd_params_value: tuple) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
         self._send_bl_cmd(ti, command_to_send)
+
+        time.sleep(0.1)
 
     def _generate_cmd_dict(self, cmd_code: int, cmd_params_value: tuple) -> dict:
         response = requests.get(
@@ -140,3 +147,5 @@ class Operation:
 
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
         self._send_rt_cmd(command_to_send)
+
+        time.sleep(0.1)
