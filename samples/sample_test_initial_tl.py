@@ -16,17 +16,17 @@ c2a_enum = c2a.load_enum(c2a_abs_path)
 def test_initial_tl():
     ope = wings.Operation()
 
-    res = wings.util.send_cmd_and_confirm(
+    ret = wings.util.send_cmd_and_confirm(
         ope,
         c2a_enum.Cmd_CODE_BCT_SET_BLOCK_POSITION,
         (c2a_enum.BC_TL_INITIAL, 0),
         c2a_enum.Tlm_CODE_HK,
     )
+    assert ret == "SUC:G"
 
     tlm_BL = wings.util.generate_and_receive_tlm(
         ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_BL
     )
-
     assert tlm_BL["BL.CMD0_ID"] == c2a_enum.Cmd_CODE_BCT_ROTATE_BLOCK
     assert tlm_BL["BL.CMD0_TI"] == 0
     assert tlm_BL["BL.CMD0_PARAM0"] == 0
