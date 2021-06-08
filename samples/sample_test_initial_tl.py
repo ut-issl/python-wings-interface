@@ -3,6 +3,7 @@
 
 import json
 import os
+import time
 
 import c2aenum as c2a
 import isslwings as wings
@@ -13,8 +14,10 @@ c2a_abs_path = os.path.dirname(__file__).replace("\\", "/") + json_dict["c2a_rel
 c2a_enum = c2a.load_enum(c2a_abs_path)
 
 
+ope = wings.Operation()
+
+
 def test_initial_tl():
-    ope = wings.Operation()
 
     ret = wings.util.send_cmd_and_confirm(
         ope,
@@ -33,5 +36,32 @@ def test_initial_tl():
     assert tlm_BL["BL.CMD0_PARAM1"] == c2a_enum.BC_AR_GS_RELATED_PROCESS
 
 
+def test_add_bc():
+
+    ret = wings.util.send_cmd_and_confirm(
+        ope,
+        c2a_enum.Cmd_CODE_BCT_SET_BLOCK_POSITION,
+        (300, 0),
+        c2a_enum.Tlm_CODE_HK,
+    )
+    assert ret == "SUC:G"
+    tlm_HK = wings.util.generate_and_receive_tlm(
+        ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_HK
+    )
+    assert tlm_HK["HK.OBC_BCT_BLK_PTR"] == 300
+    assert tlm_HK["HK.OBC_BCT_CMD_PTR"] == 0
+
+    ope.send_bl_cmd(1, c2a_enum.Cmd_CODE_GENERATE_TLM, (0x40, c2a_enum.Tlm_CODE_HK, 1))
+    time.sleep(1)
+    tlm_HK = wings.util.generate_and_receive_tlm(
+        ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_HK
+    )
+    assert tlm_HK["HK.OBC_BCT_BLK_PTR"] == 300
+    assert tlm_HK["HK.OBC_BCT_CMD_PTR"] == 1
+    assert tlm_HK["HK.OBC_BCT_REGD_TIME"] == 1
+    assert tlm_HK["HK.OBC_BCT_REGD_ID"] == c2a_enum.Cmd_CODE_GENERATE_TLM
+
+
 if __name__ == "__main__":
-    test_initial_tl()
+    # test_initial_tl()
+    test_add_bc()

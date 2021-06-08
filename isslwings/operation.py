@@ -69,6 +69,14 @@ class Operation:
         return telemetry_data, received_time
 
     def send_cmd(self, cmd_code: int, cmd_params_value: tuple) -> None:
+        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
+        self._send_rt_cmd(command_to_send)
+
+    def send_bl_cmd(self, ti: int, cmd_code: int, cmd_params_value: tuple) -> None:
+        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
+        self._send_bl_cmd(ti, command_to_send)
+
+    def _generate_cmd_dict(self, cmd_code: int, cmd_params_value: tuple) -> dict:
         response = requests.get(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id)
         ).json()
@@ -98,9 +106,23 @@ class Operation:
                 }
             )
 
-        self._send_cmd(command_to_send)
+        return command_to_send
 
-    def _send_cmd(self, command: dict) -> None:
+    def _send_rt_cmd(self, command: dict) -> None:
+
+        command["ExecType"] = "RT"
+        response = requests.post(
+            "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
+            json={"command": command},
+        ).json()
+
+        if response["ack"] == False:
+            raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
+
+    def _send_bl_cmd(self, ti: int, command: dict) -> None:
+
+        command["execType"] = "BL"
+        command["execTime"] = ti
         response = requests.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
