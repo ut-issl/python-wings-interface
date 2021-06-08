@@ -51,8 +51,13 @@ def test_add_bc():
     assert tlm_HK["HK.OBC_BCT_BLK_PTR"] == 300
     assert tlm_HK["HK.OBC_BCT_CMD_PTR"] == 0
 
-    ope.send_bl_cmd(1, c2a_enum.Cmd_CODE_GENERATE_TLM, (0x40, c2a_enum.Tlm_CODE_HK, 1))
-    time.sleep(1)
+    ret = wings.util.send_bl_cmd_and_confirm(
+        ope,
+        1,
+        c2a_enum.Cmd_CODE_GENERATE_TLM,
+        (0x40, c2a_enum.Tlm_CODE_HK, 1),
+        c2a_enum.Tlm_CODE_HK,
+    )
     tlm_HK = wings.util.generate_and_receive_tlm(
         ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_HK
     )
@@ -63,5 +68,5 @@ def test_add_bc():
 
 
 if __name__ == "__main__":
-    # test_initial_tl()
+    test_initial_tl()
     test_add_bc()
