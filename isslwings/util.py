@@ -12,7 +12,7 @@ def generate_and_receive_tlm(
 
     _, received_time_prev = ope.get_latest_tlm(tlm_code)
 
-    ope.send_cmd(cmd_code_generate_tlm, (0x40, tlm_code, 1))
+    ope.send_rt_cmd(cmd_code_generate_tlm, (0x40, tlm_code, 1))
 
     for _ in range(5):
         time.sleep(1)
@@ -24,12 +24,12 @@ def generate_and_receive_tlm(
     raise Exception("No response to GENERATE_TLM.")
 
 
-def send_cmd_and_confirm(
+def send_rt_cmd_and_confirm(
     ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
 ) -> None:
     # HKが見える前提で組む
 
-    func_send_cmd = lambda cmd_code, cmd_args: ope.send_cmd(cmd_code, cmd_args)
+    func_send_cmd = lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args)
     return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)
 
 
@@ -67,8 +67,21 @@ def send_cmd(ope: Operation, cmd_code: int, cmd_args: tuple) -> None:
     """
     !! Deprecated !!
 
-    Please use "send_cmd_and_confirm" insted.
+    Please use "send_rt_cmd_and_confirm" insted.
     """
 
-    ope.send_cmd(cmd_code, cmd_args)
+    ope.send_rt_cmd(cmd_code, cmd_args)
     time.sleep(1)
+
+
+def send_cmd_and_confirm(
+    ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
+) -> None:
+    """
+    !! Deprecated !!
+
+    Please use "send_rt_cmd_and_confirm" insted.
+    """
+
+    func_send_cmd = lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args)
+    return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)

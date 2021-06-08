@@ -19,7 +19,7 @@ ope = wings.Operation()
 
 def test_initial_tl():
 
-    ret = wings.util.send_cmd_and_confirm(
+    ret = wings.util.send_rt_cmd_and_confirm(
         ope,
         c2a_enum.Cmd_CODE_BCT_SET_BLOCK_POSITION,
         (c2a_enum.BC_TL_INITIAL, 0),
@@ -38,7 +38,7 @@ def test_initial_tl():
 
 def test_add_bc():
 
-    ret = wings.util.send_cmd_and_confirm(
+    ret = wings.util.send_rt_cmd_and_confirm(
         ope,
         c2a_enum.Cmd_CODE_BCT_SET_BLOCK_POSITION,
         (300, 0),
