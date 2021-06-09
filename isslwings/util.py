@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+from typing import Callable
 
 from .operation import Operation
 
@@ -26,25 +27,33 @@ def generate_and_receive_tlm(
 
 def send_rt_cmd_and_confirm(
     ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
-) -> None:
+) -> str:
     # HKが見える前提で組む
 
-    func_send_cmd = lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args)
+    func_send_cmd: Callable[
+        [int, tuple], None
+    ] = lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args)
     return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)
 
 
 def send_bl_cmd_and_confirm(
     ope: Operation, ti: int, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
-) -> None:
+) -> str:
     # HKが見える前提で組む
 
-    func_send_cmd = lambda cmd_code, cmd_args: ope.send_bl_cmd(ti, cmd_code, cmd_args)
+    func_send_cmd: Callable[
+        [int, tuple], None
+    ] = lambda cmd_code, cmd_args: ope.send_bl_cmd(ti, cmd_code, cmd_args)
     return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)
 
 
 def _send_cmd_and_confirm(
-    ope, func_send_cmd, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
-):
+    ope: Operation,
+    func_send_cmd: Callable[[int, tuple], None],
+    cmd_code: int,
+    cmd_args: tuple,
+    tlm_code_hk: int,
+) -> str:
     tlm_HK, _ = ope.get_latest_tlm(tlm_code_hk)
     command_count_before = tlm_HK["HK.OBC_GS_CMD_COUNTER"]
 
@@ -76,7 +85,7 @@ def send_cmd(ope: Operation, cmd_code: int, cmd_args: tuple) -> None:
 
 def send_cmd_and_confirm(
     ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
-) -> None:
+) -> str:
     """
     !! Deprecated !!
 

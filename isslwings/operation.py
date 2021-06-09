@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import time
 from typing import Tuple
 
@@ -15,7 +14,7 @@ else:
 
 
 class Operation:
-    def __init__(self, operation_idx: int = 0, url: str = default_url):
+    def __init__(self, operation_idx: int = 0, url: str = default_url) -> None:
         self.url = url
 
         response = requests.get("{}/api/operations".format(self.url)).json()
