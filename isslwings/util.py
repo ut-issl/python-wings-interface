@@ -67,7 +67,7 @@ def send_cmd(ope: Operation, cmd_code: int, cmd_args: tuple) -> None:
     """
     !! Deprecated !!
 
-    Please use "send_rt_cmd_and_confirm" insted.
+    Please use "send_rt_cmd_and_confirm" instead.
     """
 
     ope.send_rt_cmd(cmd_code, cmd_args)
@@ -80,7 +80,7 @@ def send_cmd_and_confirm(
     """
     !! Deprecated !!
 
-    Please use "send_rt_cmd_and_confirm" insted.
+    Please use "send_rt_cmd_and_confirm" instead.
     """
 
     func_send_cmd = lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args)
