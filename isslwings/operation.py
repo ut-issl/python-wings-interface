@@ -136,15 +136,3 @@ class Operation:
 
         if response["ack"] == False:
             raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
-
-    def send_cmd(self, cmd_code: int, cmd_params_value: tuple) -> None:
-        """
-        !! Deprecated !!
-
-        Please use "send_rt_cmd" insted.
-        """
-
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
-        self._send_rt_cmd(command_to_send)
-
-        time.sleep(0.1)
