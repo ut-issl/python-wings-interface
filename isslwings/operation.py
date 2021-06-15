@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import datetime
+import json
 import os
 import time
-from typing import Tuple
+from typing import List, Tuple
 
 import requests
 
@@ -14,15 +16,91 @@ else:
 
 
 class Operation:
-    def __init__(self, operation_idx: int = 0, url: str = default_url) -> None:
+    def __init__(self, url: str = default_url, auto_connect: bool = True) -> None:
+
         self.url = url
+        self.operation_id = ""
 
+        if auto_connect == True:
+            self.connect_to_operation_by_idx(0)
+
+    def connect_to_operation_by_path_number(self, path_number: str) -> None:
         response = requests.get("{}/api/operations".format(self.url)).json()
+        if not response["data"]:
+            raise Exception("Selected operation does not exist.")
 
+        found = False
+        for operation_info in response["data"]:
+            if operation_info["pathNumber"] == path_number:
+                self.operation_id = operation_info["id"]
+                found = True
+                break
+        if not found:
+            raise Exception('Path number "' + path_number + '" was not found.')
+
+    def connect_to_operation_by_idx(self, operation_idx: int) -> None:
+        response = requests.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
 
         self.operation_id = response["data"][operation_idx]["id"]
+
+    def connect_to_operation_by_id(self, operation_id: str) -> None:
+        self.operation_id = operation_id
+
+    def delete_all_operations(self) -> None:
+        response = requests.get("{}/api/operations".format(self.url)).json()
+        if not response["data"]:
+            # operation dows not exist
+            return
+
+        for operation_info in response["data"]:
+            response = requests.delete(
+                "{}/api/operations/{}".format(self.url, operation_info["id"])
+            )
+
+            if response.status_code != 204:
+                raise Exception("Failed to delete operation")
+
+    def start_and_connect_to_new_operation(self, component_name: str):
+
+        # まずはコンポーネント名からIDへの対応を取りに行く
+        response = requests.get(
+            "{}/api/components".format(self.url),
+        ).json()
+        if not response["data"]:
+            raise Exception("An error occurred while fetching components' data.")
+
+        component_id = ""
+        for component_info in response["data"]:
+            if component_info["name"] == component_name:
+                component_id = component_info["id"]
+                break
+        if component_id == "":
+            raise Exception('Component "' + component_name + '" was not found.')
+
+        # コンポーネントIDが判明したので、パスを作る
+        now = datetime.datetime.now()
+        path_number = "{:02d}{:02d}{:02d}-{:02d}{:02d}".format(
+            now.year % 100, now.month, now.day, now.hour, now.minute
+        )
+        response = requests.post(
+            "{}/api/operations".format(self.url),
+            json.dumps(
+                {
+                    "pathNumber": path_number,
+                    "comment": "",
+                    "fileLocation": "Local",
+                    "gitlabBranch": None,
+                    "componentId": component_id,
+                }
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code != 201:
+            raise Exception("Failed to start operation.")
+
+        self.connect_to_operation_by_path_number(path_number)
 
     def get_latest_tlm(self, tlm_code_id: int) -> Tuple[dict, str]:
         response = requests.get(
@@ -136,3 +214,9 @@ class Operation:
 
         if response["ack"] == False:
             raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
+
+
+if __name__ == "__main__":
+    ope = Operation(auto_connect=False)
+    ope.delete_all_operations()
+    ope.start_and_connect_to_new_operation("MOBC")
