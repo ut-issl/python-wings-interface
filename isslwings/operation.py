@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import datetime
 import json
 import os
 import time
@@ -50,7 +51,8 @@ class Operation:
     def delete_all_operations(self) -> None:
         response = requests.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
-            raise Exception("Selected operation does not exist.")
+            # operation dows not exist
+            return
 
         for operation_info in response["data"]:
             response = requests.delete(
@@ -78,7 +80,10 @@ class Operation:
             raise Exception('Component "' + component_name + '" was not found.')
 
         # コンポーネントIDが判明したので、パスを作る
-        path_number = "yymmdd-hhmm"
+        now = datetime.datetime.now()
+        path_number = "{:02d}{:02d}{:02d}-{:02d}{:02d}".format(
+            now.year % 100, now.month, now.day, now.hour, now.minute
+        )
         response = requests.post(
             "{}/api/operations".format(self.url),
             json.dumps(
