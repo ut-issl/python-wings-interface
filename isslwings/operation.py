@@ -47,6 +47,19 @@ class Operation:
     def connect_to_operation_by_id(self, operation_id: str) -> None:
         self.operation_id = operation_id
 
+    def delete_all_operations(self) -> None:
+        response = requests.get("{}/api/operations".format(self.url)).json()
+        if not response["data"]:
+            raise Exception("Selected operation does not exist.")
+
+        for operation_info in response["data"]:
+            response = requests.delete(
+                "{}/api/operations/{}".format(self.url, operation_info["id"])
+            )
+
+            if response.status_code != 204:
+                raise Exception("Failed to delete operation")
+
     def start_and_connect_to_new_operation(self, component_name: str):
 
         # まずはコンポーネント名からIDへの対応を取りに行く
@@ -200,4 +213,5 @@ class Operation:
 
 if __name__ == "__main__":
     ope = Operation(auto_connect=False)
+    ope.delete_all_operations()
     ope.start_and_connect_to_new_operation("MOBC")
