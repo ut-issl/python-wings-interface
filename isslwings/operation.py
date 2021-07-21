@@ -194,7 +194,8 @@ class Operation:
 
     def _send_rt_cmd(self, command: dict) -> None:
 
-        command["ExecType"] = "RT"
+        command["execType"] = "RT"
+        command["component"] = "MOBC"
         response = requests.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
@@ -206,6 +207,7 @@ class Operation:
     def _send_bl_cmd(self, ti: int, command: dict) -> None:
 
         command["execType"] = "BL"
+        command["component"] = "MOBC"
         command["execTime"] = ti
         response = requests.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
