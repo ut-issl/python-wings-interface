@@ -16,7 +16,7 @@ def generate_and_receive_tlm(
     ope.send_rt_cmd(cmd_code_generate_tlm, (0x40, tlm_code, 1))
 
     for _ in range(50):
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         tlm, received_time_after = ope.get_latest_tlm(tlm_code)
         if received_time_prev != received_time_after:
@@ -60,7 +60,7 @@ def _send_cmd_and_confirm(
     func_send_cmd(cmd_code, cmd_args)
 
     for _ in range(50):
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         tlm_HK, _ = ope.get_latest_tlm(tlm_code_hk)
         command_count_after = tlm_HK["HK.OBC_GS_CMD_COUNTER"]
