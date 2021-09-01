@@ -144,7 +144,7 @@ class Operation:
         # テレメトリごとに更新時刻は保存されているが、とりあえず先頭を抽出
         received_time = telemetries[0]["time"]
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         return telemetry_data, received_time
 
