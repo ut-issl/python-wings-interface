@@ -132,17 +132,17 @@ class Operation:
             # strで読み込んでしまっているので、適切な型へcastする
             # int -> float の順で変換に失敗したらstrで読む
             try:
-                data = int(telemetry["value"])
+                data = int(telemetry["telemetryValue"]["value"])
             except:
                 try:
-                    data = float(telemetry["value"])
+                    data = float(telemetry["telemetryValue"]["value"])
                 except:
-                    data = telemetry["value"]
+                    data = telemetry["telemetryValue"]["value"]
 
-            telemetry_data[telemetry["name"]] = data
+            telemetry_data[telemetry["telemetryInfo"]["name"]] = data
 
         # テレメトリごとに更新時刻は保存されているが、とりあえず先頭を抽出
-        received_time = telemetries[0]["time"]
+        received_time = telemetries[0]["telemetryValue"]["time"]
 
         time.sleep(0.2)
 
@@ -178,8 +178,8 @@ class Operation:
         if not command_is_found:
             raise Exception('Command code id "{}" cannot be found.'.format(cmd_code))
 
-        # 送信用dictにとりあえずcodeだけ入れて、paramは大変なので後で入れる
-        command_to_send = {"code": command["code"], "params": []}
+        # 送信用dictにとりあえずtemplateを入れる
+        command_to_send = command
 
         # paramは型情報が必要なので、最初に読み込んだコマンド情報から生成
         for i in range(len(command["params"])):
@@ -195,7 +195,6 @@ class Operation:
     def _send_rt_cmd(self, command: dict) -> None:
 
         command["execType"] = "RT"
-        command["component"] = "MOBC"
         response = requests.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
@@ -207,7 +206,6 @@ class Operation:
     def _send_bl_cmd(self, ti: int, command: dict) -> None:
 
         command["execType"] = "BL"
-        command["component"] = "MOBC"
         command["execTime"] = ti
         response = requests.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
