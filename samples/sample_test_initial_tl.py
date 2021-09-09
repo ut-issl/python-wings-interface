@@ -8,10 +8,7 @@ import time
 import c2aenum as c2a
 import isslwings as wings
 
-with open(os.path.dirname(__file__).replace("\\", "/") + "/settings.json") as f:
-    json_dict = json.load(f)
-c2a_abs_path = os.path.dirname(__file__).replace("\\", "/") + json_dict["c2a_rel_path"]
-c2a_enum = c2a.load_enum(c2a_abs_path)
+c2a_enum = c2a.load_enum(os.environ.get("C2A_ABS_PATH"))
 
 
 ope = wings.Operation()
