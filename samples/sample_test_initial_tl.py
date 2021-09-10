@@ -22,7 +22,7 @@ def test_initial_tl():
         (c2a_enum.BC_TL_INITIAL, 0),
         c2a_enum.Tlm_CODE_HK,
     )
-    assert ret == "SUC:G"
+    assert ret == "SUC"
 
     tlm_BL = wings.util.generate_and_receive_tlm(
         ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_BL
@@ -41,7 +41,7 @@ def test_add_bc():
         (300, 0),
         c2a_enum.Tlm_CODE_HK,
     )
-    assert ret == "SUC:G"
+    assert ret == "SUC"
     tlm_HK = wings.util.generate_and_receive_tlm(
         ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_HK
     )
