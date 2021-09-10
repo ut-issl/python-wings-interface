@@ -135,9 +135,12 @@ class Operation:
                 data = int(telemetry["telemetryValue"]["value"])
             except:
                 try:
-                    data = float(telemetry["telemetryValue"]["value"])
+                    data = int(telemetry["telemetryValue"]["value"], base=16)
                 except:
-                    data = telemetry["telemetryValue"]["value"]
+                    try:
+                        data = float(telemetry["telemetryValue"]["value"])
+                    except:
+                        data = telemetry["telemetryValue"]["value"]
 
             telemetry_data[telemetry["telemetryInfo"]["name"]] = data
 
@@ -183,12 +186,10 @@ class Operation:
 
         # paramは型情報が必要なので、最初に読み込んだコマンド情報から生成
         for i in range(len(command["params"])):
-            command_to_send["params"].append(
-                {
-                    "type": command["params"][i]["type"],
-                    "value": str(cmd_params_value[i]),
-                }
-            )
+            command_to_send["params"][i] = {
+                "type": command["params"][i]["type"],
+                "value": str(cmd_params_value[i]),
+            }
 
         return command_to_send
 
