@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import time
 from typing import Callable
-
 from .operation import Operation
 
 

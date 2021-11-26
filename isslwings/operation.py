@@ -1,31 +1,55 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import datetime
 import json
 import os
 import time
 from typing import List, Tuple
-
-import requests
+from certifi import contents
+import httpx
 
 if os.environ.get("USES_DOCKER") != None:
     default_url = "http://host.docker.internal:5000"
 else:
-    default_url = "http://localhost:5000"
+    default_url = "https://localhost:5001"
+
+default_authentication_info = {
+    "client_id": "hoge_id",
+    "client_secret": "hoge_secret",
+    "grant_type": "hoge",
+    "username": "hoge@fuga",
+    "password": "piyopiyo"
+}
 
 
 class Operation:
-    def __init__(self, url: str = default_url, auto_connect: bool = True) -> None:
-
+    def __init__(self, url: str = default_url, auto_connect: bool = True, authentication_info: dict = default_authentication_info) -> None:
         self.url = url
         self.operation_id = ""
+        self.authorized_headers = {} # 認証が必要
+
+        # 認証を入れていく
+        self.client = httpx.Client(http2=True, verify=False)
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        contents = ""
+        for key in authentication_info.keys():
+            contents += f"{key}={authentication_info[key]}&"
+        response_with_token = self.client.post(
+            f'{self.url}/connect/token',
+            headers=headers,
+            content=contents.rstrip('&'))
+        access_token = json.loads(response_with_token.text)["access_token"]
+
+        self.authorized_headers = dict(Authorization = f"Bearer {access_token}")
 
         if auto_connect == True:
             self.connect_to_operation_by_idx(0)
 
     def connect_to_operation_by_path_number(self, path_number: str) -> None:
-        response = requests.get("{}/api/operations".format(self.url)).json()
+        response = self.client.get(
+            "{}/api/operations".format(self.url),
+            headers=self.authorized_headers
+        ).json()
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
 
@@ -39,7 +63,11 @@ class Operation:
             raise Exception('Path number "' + path_number + '" was not found.')
 
     def connect_to_operation_by_idx(self, operation_idx: int) -> None:
-        response = requests.get("{}/api/operations".format(self.url)).json()
+        response = self.client.get(
+            "{}/api/operations".format(self.url),
+            headers=self.authorized_headers
+        ).json()
+
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
 
@@ -49,14 +77,18 @@ class Operation:
         self.operation_id = operation_id
 
     def delete_all_operations(self) -> None:
-        response = requests.get("{}/api/operations".format(self.url)).json()
+        response = self.client.get(
+            "{}/api/operations".format(self.url),
+            headers=self.authorized_headers
+        ).json()
         if not response["data"]:
             # operation dows not exist
             return
 
         for operation_info in response["data"]:
-            response = requests.delete(
-                "{}/api/operations/{}".format(self.url, operation_info["id"])
+            response = self.client.delete(
+                "{}/api/operations/{}".format(self.url, operation_info["id"]),
+                headers=self.authorized_headers
             )
 
             if response.status_code != 204:
@@ -65,8 +97,9 @@ class Operation:
     def start_and_connect_to_new_operation(self, component_name: str):
 
         # まずはコンポーネント名からIDへの対応を取りに行く
-        response = requests.get(
+        response = self.client.get(
             "{}/api/components".format(self.url),
+            headers=self.authorized_headers
         ).json()
         if not response["data"]:
             raise Exception("An error occurred while fetching components' data.")
@@ -84,18 +117,21 @@ class Operation:
         path_number = "{:02d}{:02d}{:02d}-{:02d}{:02d}".format(
             now.year % 100, now.month, now.day, now.hour, now.minute
         )
-        response = requests.post(
+
+        headers = self.authorized_headers
+        headers["Content-Type"] = "application/json"
+
+        response = self.client.post(
             "{}/api/operations".format(self.url),
-            json.dumps(
-                {
-                    "pathNumber": path_number,
-                    "comment": "",
-                    "fileLocation": "Local",
-                    "gitlabBranch": None,
-                    "componentId": component_id,
-                }
-            ),
-            headers={"Content-Type": "application/json"},
+            json = {"operation" : {
+                        "pathNumber": path_number,
+                        "comment": "",
+                        "fileLocation": "Local",
+                        "gitlabBranch": None,
+                        "componentId": component_id
+                    }
+                },
+            headers=headers,
         )
         if response.status_code != 201:
             raise Exception("Failed to start operation.")
@@ -103,8 +139,9 @@ class Operation:
         self.connect_to_operation_by_path_number(path_number)
 
     def get_latest_tlm(self, tlm_code_id: int) -> Tuple[dict, str]:
-        response = requests.get(
-            "{}/api/operations/{}/tlm".format(self.url, self.operation_id)
+        response = self.client.get(
+            "{}/api/operations/{}/tlm".format(self.url, self.operation_id),
+            headers=self.authorized_headers
         ).json()
 
         if not response["data"]:
@@ -164,8 +201,9 @@ class Operation:
         time.sleep(0.1)
 
     def _generate_cmd_dict(self, cmd_code: int, cmd_params_value: tuple) -> dict:
-        response = requests.get(
-            "{}/api/operations/{}/cmd".format(self.url, self.operation_id)
+        response = self.client.get(
+            "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
+            headers=self.authorized_headers
         ).json()
 
         if not response["data"]:
@@ -196,9 +234,10 @@ class Operation:
     def _send_rt_cmd(self, command: dict) -> None:
 
         command["execType"] = "RT"
-        response = requests.post(
+        response = self.client.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
+            headers=self.authorized_headers
         ).json()
 
         if response["ack"] == False:
@@ -208,9 +247,10 @@ class Operation:
 
         command["execType"] = "BL"
         command["execTime"] = ti
-        response = requests.post(
+        response = self.client.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
+            headers=self.authorized_headers
         ).json()
 
         if response["ack"] == False:
