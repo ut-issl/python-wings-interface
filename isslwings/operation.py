@@ -167,17 +167,21 @@ class Operation:
             # TODO: テレメデータがない時の例外処理を加える
 
             # strで読み込んでしまっているので、適切な型へcastする
-            # int -> float の順で変換に失敗したらstrで読む
-            try:
-                data = int(telemetry["telemetryValue"]["value"])
-            except:
+            # hexはそのまま
+            # その他は int -> float の順で変換に失敗したらstrで読む
+            if telemetry["telemetryInfo"]["convType"] == "HEX":
+                data = telemetry["telemetryValue"]["value"]
+            else:
                 try:
-                    data = int(telemetry["telemetryValue"]["value"], base=16)
+                    data = int(telemetry["telemetryValue"]["value"])
                 except:
                     try:
-                        data = float(telemetry["telemetryValue"]["value"])
+                        data = int(telemetry["telemetryValue"]["value"], base=16)
                     except:
-                        data = telemetry["telemetryValue"]["value"]
+                        try:
+                            data = float(telemetry["telemetryValue"]["value"])
+                        except:
+                            data = telemetry["telemetryValue"]["value"]
 
             telemetry_data[telemetry["telemetryInfo"]["name"]] = data
 
