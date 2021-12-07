@@ -23,6 +23,7 @@ def generate_and_receive_tlm(
     raise Exception("No response to GENERATE_TLM.")
 
 
+# FIXME: MOBC経由からの2nd OBCへのコマンドは，GS counterで confirm できないので，一旦対応しない．別関数つくる？
 def send_rt_cmd_and_confirm(
     ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
 ) -> str:
@@ -34,6 +35,7 @@ def send_rt_cmd_and_confirm(
     return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)
 
 
+# FIXME: MOBC経由からの2nd OBCへのコマンドは，GS counterで confirm できないので，一旦対応しない．別関数つくる？
 def send_bl_cmd_and_confirm(
     ope: Operation, ti: int, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
 ) -> str:
@@ -53,7 +55,7 @@ def _send_cmd_and_confirm(
     tlm_code_hk: int,
 ) -> str:
     tlm_HK, _ = ope.get_latest_tlm(tlm_code_hk)
-    command_count_before = tlm_HK["HK.OBC_GS_CMD_COUNTER"]
+    command_count_before = tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_counter"]]
 
     func_send_cmd(cmd_code, cmd_args)
 
@@ -61,11 +63,11 @@ def _send_cmd_and_confirm(
         time.sleep(0.2)
 
         tlm_HK, _ = ope.get_latest_tlm(tlm_code_hk)
-        command_count_after = tlm_HK["HK.OBC_GS_CMD_COUNTER"]
-        command_exec_id = tlm_HK["HK.OBC_GS_CMD_LAST_EXEC_ID"]
+        command_count_after = tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_counter"]]
+        command_exec_id = tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_last_exec_id"]]
 
         if command_count_after > command_count_before and command_exec_id == cmd_code:
-            return tlm_HK["HK.OBC_GS_CMD_LAST_EXEC_STS"]
+            return tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_last_exec_sts"]]
 
     raise Exception("No response to command code:" + str(cmd_code) + ".")
 
