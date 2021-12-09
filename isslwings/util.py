@@ -54,8 +54,10 @@ def _send_cmd_and_confirm(
     cmd_args: tuple,
     tlm_code_hk: int,
 ) -> str:
+    hk_tlm_info = ope.get_obc_info()["hk_tlm_info"]
+    hk_tlm_name = hk_tlm_info["tlm_name"]
     tlm_HK, _ = ope.get_latest_tlm(tlm_code_hk)
-    command_count_before = tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_counter"]]
+    command_count_before = tlm_HK[hk_tlm_name + "." + hk_tlm_info["cmd_counter"]]
 
     func_send_cmd(cmd_code, cmd_args)
 
@@ -63,11 +65,11 @@ def _send_cmd_and_confirm(
         time.sleep(0.2)
 
         tlm_HK, _ = ope.get_latest_tlm(tlm_code_hk)
-        command_count_after = tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_counter"]]
-        command_exec_id = tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_last_exec_id"]]
+        command_count_after = tlm_HK[hk_tlm_name + "." + hk_tlm_info["cmd_counter"]]
+        command_exec_id = tlm_HK[hk_tlm_name + "." + hk_tlm_info["cmd_last_exec_id"]]
 
         if command_count_after > command_count_before and command_exec_id == cmd_code:
-            return tlm_HK[ope.get_obc_info()["hk_tlm_info"]["tlm_name"] + "." + ope.get_obc_info()["hk_tlm_info"]["cmd_last_exec_sts"]]
+            return tlm_HK[hk_tlm_name + "." + hk_tlm_info["cmd_last_exec_sts"]]
 
     raise Exception("No response to command code:" + str(cmd_code) + ".")
 
