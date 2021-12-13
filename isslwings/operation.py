@@ -13,6 +13,16 @@ if os.environ.get("USES_DOCKER") != None:
 else:
     default_url = "https://localhost:5001"
 
+default_obc_info = {
+    "name": "MOBC",
+    "hk_tlm_info": {
+        "tlm_name": "HK",
+        "cmd_counter": "OBC_GS_CMD_COUNTER",
+        "cmd_last_exec_id": "OBC_GS_CMD_LAST_EXEC_ID",
+        "cmd_last_exec_sts": "OBC_GS_CMD_LAST_EXEC_STS"
+    }
+}
+
 default_authentication_info = {
     "client_id": "hoge_id",
     "client_secret": "hoge_secret",
@@ -21,11 +31,17 @@ default_authentication_info = {
     "password": "piyopiyo"
 }
 
-
 class Operation:
-    def __init__(self, url: str = default_url, auto_connect: bool = True, authentication_info: dict = default_authentication_info) -> None:
+    def __init__(
+        self,
+        url: str = default_url,
+        auto_connect: bool = True,
+        obc_info: dict = default_obc_info,
+        authentication_info: dict = default_authentication_info
+    ) -> None:
         self.url = url
         self.operation_id = ""
+        self.obc_info = obc_info
         self.authorized_headers = {} # 認証が必要
 
         # 認証を入れていく
@@ -192,19 +208,25 @@ class Operation:
 
         return telemetry_data, received_time
 
-    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
+    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "") -> None:
+        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         self._send_rt_cmd(command_to_send)
 
         time.sleep(0.1)
 
-    def send_bl_cmd(self, ti: int, cmd_code: int, cmd_params_value: tuple) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value)
+    def send_bl_cmd(self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = "") -> None:
+        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         self._send_bl_cmd(ti, command_to_send)
 
         time.sleep(0.1)
 
-    def _generate_cmd_dict(self, cmd_code: int, cmd_params_value: tuple) -> dict:
+    def get_obc_info(self) -> dict:
+        return self.obc_info
+
+    def _generate_cmd_dict(self, cmd_code: int, cmd_params_value: tuple, component: str = "") -> dict:
+        if component == "":
+            component = self.obc_info["name"]
+
         response = self.client.get(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             headers=self.authorized_headers
@@ -216,7 +238,7 @@ class Operation:
         # 該当するcmd_codeのコマンド情報を探す
         command_is_found = False
         for command in response["data"]:
-            if int(command["code"], base=16) == cmd_code:
+            if command["component"] == component and int(command["code"], base=16) == cmd_code:
                 command_is_found = True
                 break
 
@@ -236,7 +258,6 @@ class Operation:
         return command_to_send
 
     def _send_rt_cmd(self, command: dict) -> None:
-
         command["execType"] = "RT"
         response = self.client.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
@@ -248,7 +269,6 @@ class Operation:
             raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
 
     def _send_bl_cmd(self, ti: int, command: dict) -> None:
-
         command["execType"] = "BL"
         command["execTime"] = ti
         response = self.client.post(
