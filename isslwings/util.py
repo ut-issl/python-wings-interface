@@ -5,10 +5,7 @@ from typing import Callable
 from .operation import Operation
 
 
-def generate_and_receive_tlm(
-    ope: Operation, cmd_code_generate_tlm: int, tlm_code: int
-) -> dict:
-
+def generate_and_receive_tlm(ope: Operation, cmd_code_generate_tlm: int, tlm_code: int) -> dict:
     _, received_time_prev = ope.get_latest_tlm(tlm_code)
 
     ope.send_rt_cmd(cmd_code_generate_tlm, (0x40, tlm_code, 1))
@@ -29,9 +26,9 @@ def send_rt_cmd_and_confirm(
 ) -> str:
     # HKが見える前提で組む
 
-    func_send_cmd: Callable[
-        [int, tuple], None
-    ] = lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args)
+    func_send_cmd: Callable[[int, tuple], None] = lambda cmd_code, cmd_args: ope.send_rt_cmd(
+        cmd_code, cmd_args
+    )
     return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)
 
 
@@ -41,23 +38,19 @@ def send_bl_cmd_and_confirm(
 ) -> str:
     # HKが見える前提で組む
 
-    func_send_cmd: Callable[
-        [int, tuple], None
-    ] = lambda cmd_code, cmd_args: ope.send_bl_cmd(ti, cmd_code, cmd_args)
+    func_send_cmd: Callable[[int, tuple], None] = lambda cmd_code, cmd_args: ope.send_bl_cmd(
+        ti, cmd_code, cmd_args
+    )
     return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)
 
 
 # TODO: HK で confirm する過程を追加する
-def send_tl_cmd(
-    ope: Operation, ti: int, cmd_code: int, cmd_args: tuple
-) -> str:
+def send_tl_cmd(ope: Operation, ti: int, cmd_code: int, cmd_args: tuple) -> str:
     ope.send_tl_cmd(ti, cmd_code, cmd_args)
 
 
 # TODO: HK で confirm する過程を追加する
-def send_utl_cmd(
-    ope: Operation, unixtime: float, cmd_code: int, cmd_args: tuple
-) -> str:
+def send_utl_cmd(ope: Operation, unixtime: float, cmd_code: int, cmd_args: tuple) -> str:
     ope.send_utl_cmd(unixtime, cmd_code, cmd_args)
 
 
@@ -99,9 +92,7 @@ def send_cmd(ope: Operation, cmd_code: int, cmd_args: tuple) -> None:
     time.sleep(1)
 
 
-def send_cmd_and_confirm(
-    ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
-) -> str:
+def send_cmd_and_confirm(ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int) -> str:
     """
     !! Deprecated !!
 
