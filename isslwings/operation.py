@@ -58,7 +58,7 @@ class Operation:
 
         self.authorized_headers = dict(Authorization=f"Bearer {access_token}")
 
-        if auto_connect == True:
+        if auto_connect is True:
             self.connect_to_operation_by_idx(0)
 
     def connect_to_operation_by_path_number(self, path_number: str) -> None:
@@ -280,7 +280,7 @@ class Operation:
             headers=self.authorized_headers,
         ).json()
 
-        if response["ack"] == False:
+        if response["ack"] is False:
             raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
 
     def _send_bl_cmd(self, ti: int, command: dict) -> None:
@@ -292,7 +292,7 @@ class Operation:
             headers=self.authorized_headers,
         ).json()
 
-        if response["ack"] == False:
+        if response["ack"] is False:
             raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
 
     def _send_tl_cmd(self, ti: int, command: dict) -> None:
@@ -304,7 +304,7 @@ class Operation:
             headers=self.authorized_headers,
         ).json()
 
-        if response["ack"] == False:
+        if response["ack"] is False:
             raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
 
     def _send_utl_cmd(self, unixtime: float, command: dict) -> None:
@@ -316,7 +316,7 @@ class Operation:
             headers=self.authorized_headers,
         ).json()
 
-        if response["ack"] == False:
+        if response["ack"] is False:
             raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
 
 
