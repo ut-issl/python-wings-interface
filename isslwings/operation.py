@@ -184,13 +184,13 @@ class Operation:
             else:
                 try:
                     data = int(telemetry["telemetryValue"]["value"])
-                except ValueError:
+                except (ValueError, TypeError):
                     try:
                         data = int(telemetry["telemetryValue"]["value"], base=16)
-                    except ValueError:
+                    except (ValueError, TypeError):
                         try:
                             data = float(telemetry["telemetryValue"]["value"])
-                        except ValueError:
+                        except (ValueError, TypeError):
                             data = telemetry["telemetryValue"]["value"]
 
             telemetry_data[telemetry["telemetryInfo"]["name"]] = data
