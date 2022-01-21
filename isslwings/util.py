@@ -99,5 +99,10 @@ def send_cmd_and_confirm(ope: Operation, cmd_code: int, cmd_args: tuple, tlm_cod
     Please use "send_rt_cmd_and_confirm" instead.
     """
 
-    func_send_cmd = lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args)
-    return _send_cmd_and_confirm(ope, func_send_cmd, cmd_code, cmd_args, tlm_code_hk)
+    return _send_cmd_and_confirm(
+        ope,
+        lambda cmd_code, cmd_args: ope.send_rt_cmd(cmd_code, cmd_args),
+        cmd_code,
+        cmd_args,
+        tlm_code_hk,
+    )

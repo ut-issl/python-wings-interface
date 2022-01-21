@@ -4,11 +4,10 @@ import datetime
 import json
 import os
 import time
-from typing import List, Tuple
-from certifi import contents
+from typing import Tuple
 import httpx
 
-if os.environ.get("USES_DOCKER") != None:
+if os.environ.get("USES_DOCKER") is not None:
     default_url = "http://host.docker.internal:5000"
 else:
     default_url = "https://localhost:5001"
@@ -185,13 +184,13 @@ class Operation:
             else:
                 try:
                     data = int(telemetry["telemetryValue"]["value"])
-                except:
+                except ValueError:
                     try:
                         data = int(telemetry["telemetryValue"]["value"], base=16)
-                    except:
+                    except ValueError:
                         try:
                             data = float(telemetry["telemetryValue"]["value"])
-                        except:
+                        except ValueError:
                             data = telemetry["telemetryValue"]["value"]
 
             telemetry_data[telemetry["telemetryInfo"]["name"]] = data
