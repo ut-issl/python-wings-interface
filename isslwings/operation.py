@@ -139,8 +139,10 @@ class Operation:
                     "pathNumber": path_number,
                     "comment": "",
                     "fileLocation": "Local",
-                    "gitlabBranch": None,
+                    "tmtcTarget": "TmtcIf",
                     "componentId": component_id,
+                    "satelliteId": "",
+                    "planId": "",
                 }
             },
             headers=headers,
