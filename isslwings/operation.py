@@ -200,8 +200,6 @@ class Operation:
         # テレメトリごとに更新時刻は保存されているが、とりあえず先頭を抽出
         received_time = telemetries[0]["telemetryValue"]["time"]
 
-        time.sleep(0.2)
-
         return telemetry_data, received_time
 
     def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "") -> None:
