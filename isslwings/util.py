@@ -54,6 +54,16 @@ def send_utl_cmd(ope: Operation, unixtime: float, cmd_code: int, cmd_args: tuple
     ope.send_utl_cmd(unixtime, cmd_code, cmd_args)
 
 
+# TODO: HK で confirm する過程を追加する
+def send_tl_mis_cmd(ope: Operation, ti: int, cmd_code: int, cmd_args: tuple) -> str:
+    ope.send_tl_mis_cmd(ti, cmd_code, cmd_args)
+
+
+# TODO: HK で confirm する過程を追加する
+def send_utl_mis_cmd(ope: Operation, unixtime: float, cmd_code: int, cmd_args: tuple) -> str:
+    ope.send_utl_mis_cmd(unixtime, cmd_code, cmd_args)
+
+
 def _send_cmd_and_confirm(
     ope: Operation,
     func_send_cmd: Callable[[int, tuple], None],

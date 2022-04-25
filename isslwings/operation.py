@@ -204,7 +204,8 @@ class Operation:
 
     def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "") -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
-        self._send_rt_cmd(command_to_send)
+        command_to_send["execType"] = "RT"
+        self._send_cmd(command_to_send)
 
         time.sleep(0.1)
 
@@ -212,7 +213,9 @@ class Operation:
         self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = ""
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
-        self._send_bl_cmd(ti, command_to_send)
+        command_to_send["execType"] = "BL"
+        command_to_send["execTime"] = ti
+        self._send_cmd(command_to_send)
 
         time.sleep(0.1)
 
@@ -220,7 +223,9 @@ class Operation:
         self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = ""
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
-        self._send_tl_cmd(ti, command_to_send)
+        command_to_send["execType"] = "TL"
+        command_to_send["execTime"] = ti
+        self._send_cmd(command_to_send)
 
         time.sleep(0.1)
 
@@ -228,7 +233,29 @@ class Operation:
         self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = ""
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
-        self._send_utl_cmd(unixtime, command_to_send)
+        command_to_send["execType"] = "UTL"
+        command_to_send["execTime"] = unixtime
+        self._send_cmd(command_to_send)
+
+        time.sleep(0.1)
+
+    def send_tl_mis_cmd(
+        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = ""
+    ) -> None:
+        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
+        command_to_send["execType"] = "TL_MIS"
+        command_to_send["execTime"] = ti
+        self._send_cmd(command_to_send)
+
+        time.sleep(0.1)
+
+    def send_utl_mis_cmd(
+        self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = ""
+    ) -> None:
+        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
+        command_to_send["execType"] = "UTL_MIS"
+        command_to_send["execTime"] = unixtime
+        self._send_cmd(command_to_send)
 
         time.sleep(0.1)
 
@@ -271,44 +298,7 @@ class Operation:
 
         return command_to_send
 
-    def _send_rt_cmd(self, command: dict) -> None:
-        command["execType"] = "RT"
-        response = self.client.post(
-            "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
-            json={"command": command},
-            headers=self.authorized_headers,
-        ).json()
-
-        if response["ack"] is False:
-            raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
-
-    def _send_bl_cmd(self, ti: int, command: dict) -> None:
-        command["execType"] = "BL"
-        command["execTime"] = ti
-        response = self.client.post(
-            "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
-            json={"command": command},
-            headers=self.authorized_headers,
-        ).json()
-
-        if response["ack"] is False:
-            raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
-
-    def _send_tl_cmd(self, ti: int, command: dict) -> None:
-        command["execType"] = "TL"
-        command["execTime"] = ti
-        response = self.client.post(
-            "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
-            json={"command": command},
-            headers=self.authorized_headers,
-        ).json()
-
-        if response["ack"] is False:
-            raise Exception('send_cmd failed.\n" + "command "{}"'.format(command))
-
-    def _send_utl_cmd(self, unixtime: float, command: dict) -> None:
-        command["execType"] = "UTL"
-        command["execTime"] = unixtime
+    def _send_cmd(self, command: dict) -> None:
         response = self.client.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
