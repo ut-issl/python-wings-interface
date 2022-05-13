@@ -214,7 +214,7 @@ class Operation:
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "BL"
-        command_to_send["execTime"] = ti
+        command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
 
         time.sleep(0.1)
@@ -224,7 +224,7 @@ class Operation:
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "TL"
-        command_to_send["execTime"] = ti
+        command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
 
         time.sleep(0.1)
@@ -234,7 +234,7 @@ class Operation:
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "UTL"
-        command_to_send["execTimeTemp"] = str(unixtime)
+        command_to_send["execTimeDouble"] = unixtime
         self._send_cmd(command_to_send)
 
         time.sleep(0.1)
@@ -244,7 +244,7 @@ class Operation:
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "TL_MIS"
-        command_to_send["execTime"] = ti
+        command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
 
         time.sleep(0.1)
@@ -254,7 +254,7 @@ class Operation:
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "UTL_MIS"
-        command_to_send["execTimeTemp"] = str(unixtime)
+        command_to_send["execTimeDouble"] = unixtime
         self._send_cmd(command_to_send)
 
         time.sleep(0.1)
