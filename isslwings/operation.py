@@ -202,17 +202,28 @@ class Operation:
 
         return telemetry_data, received_time
 
-    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "", is_via_mobc: bool = False) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component, is_via_mobc)
+    def send_rt_cmd(
+        self, cmd_code: int, cmd_params_value: tuple, component: str = "", is_via_mobc: bool = False
+    ) -> None:
+        command_to_send = self._generate_cmd_dict(
+            cmd_code, cmd_params_value, component, is_via_mobc
+        )
         command_to_send["execType"] = "RT"
         self._send_cmd(command_to_send)
 
         time.sleep(0.1)
 
     def send_bl_cmd(
-        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = "", is_via_mobc: bool = False
+        self,
+        ti: int,
+        cmd_code: int,
+        cmd_params_value: tuple,
+        component: str = "",
+        is_via_mobc: bool = False,
     ) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component, is_via_mobc)
+        command_to_send = self._generate_cmd_dict(
+            cmd_code, cmd_params_value, component, is_via_mobc
+        )
         command_to_send["execType"] = "BL"
         command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
@@ -220,9 +231,16 @@ class Operation:
         time.sleep(0.1)
 
     def send_tl_cmd(
-        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = "", is_via_mobc: bool = False
+        self,
+        ti: int,
+        cmd_code: int,
+        cmd_params_value: tuple,
+        component: str = "",
+        is_via_mobc: bool = False,
     ) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component, is_via_mobc)
+        command_to_send = self._generate_cmd_dict(
+            cmd_code, cmd_params_value, component, is_via_mobc
+        )
         command_to_send["execType"] = "TL"
         command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
@@ -230,9 +248,16 @@ class Operation:
         time.sleep(0.1)
 
     def send_utl_cmd(
-        self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = "", is_via_mobc: bool = False
+        self,
+        unixtime: float,
+        cmd_code: int,
+        cmd_params_value: tuple,
+        component: str = "",
+        is_via_mobc: bool = False,
     ) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component, is_via_mobc)
+        command_to_send = self._generate_cmd_dict(
+            cmd_code, cmd_params_value, component, is_via_mobc
+        )
         command_to_send["execType"] = "UTL"
         command_to_send["execTimeDouble"] = unixtime
         self._send_cmd(command_to_send)
@@ -240,9 +265,16 @@ class Operation:
         time.sleep(0.1)
 
     def send_tl_mis_cmd(
-        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = "", is_via_mobc: bool = False
+        self,
+        ti: int,
+        cmd_code: int,
+        cmd_params_value: tuple,
+        component: str = "",
+        is_via_mobc: bool = False,
     ) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component, is_via_mobc)
+        command_to_send = self._generate_cmd_dict(
+            cmd_code, cmd_params_value, component, is_via_mobc
+        )
         command_to_send["execType"] = "TL_MIS"
         command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
@@ -250,9 +282,16 @@ class Operation:
         time.sleep(0.1)
 
     def send_utl_mis_cmd(
-        self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = "", is_via_mobc: bool = False
+        self,
+        unixtime: float,
+        cmd_code: int,
+        cmd_params_value: tuple,
+        component: str = "",
+        is_via_mobc: bool = False,
     ) -> None:
-        command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component, is_via_mobc)
+        command_to_send = self._generate_cmd_dict(
+            cmd_code, cmd_params_value, component, is_via_mobc
+        )
         command_to_send["execType"] = "UTL_MIS"
         command_to_send["execTimeDouble"] = unixtime
         self._send_cmd(command_to_send)
