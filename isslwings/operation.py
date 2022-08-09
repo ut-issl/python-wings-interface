@@ -299,7 +299,7 @@ class Operation:
         for i in range(len(command["params"])):
             command_to_send["params"][i] = {
                 "type": command["params"][i]["type"],
-                "value": str(cmd_params_value[i]),
+                "value": hex(cmd_params_value[i]) if command["params"][i]["type"] == "raw" else str(cmd_params_value[i]),
             }
 
         return command_to_send
