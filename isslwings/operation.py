@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 import time
+from enum import Enum
 from typing import Tuple
 import httpx
 
@@ -29,6 +30,11 @@ default_authentication_info = {
     "username": "hoge@fuga",
     "password": "piyopiyo",
 }
+
+
+class CmdType(Enum):
+    TypeA = 0
+    TypeB = 1
 
 
 class Operation:
@@ -202,62 +208,62 @@ class Operation:
 
         return telemetry_data, received_time
 
-    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "") -> None:
+    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "RT"
         self._send_cmd(command_to_send)
 
-        time.sleep(0.1)
+        time.sleep(sleep_sec)
 
     def send_bl_cmd(
-        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = ""
+        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "BL"
         command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
 
-        time.sleep(0.1)
+        time.sleep(sleep_sec)
 
     def send_tl_cmd(
-        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = ""
+        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "TL"
         command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
 
-        time.sleep(0.1)
+        time.sleep(sleep_sec)
 
     def send_utl_cmd(
-        self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = ""
+        self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "UTL"
         command_to_send["execTimeDouble"] = unixtime
         self._send_cmd(command_to_send)
 
-        time.sleep(0.1)
+        time.sleep(sleep_sec)
 
     def send_tl_mis_cmd(
-        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = ""
+        self, ti: int, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "TL_MIS"
         command_to_send["execTimeInt"] = ti
         self._send_cmd(command_to_send)
 
-        time.sleep(0.1)
+        time.sleep(sleep_sec)
 
     def send_utl_mis_cmd(
-        self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = ""
+        self, unixtime: float, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1
     ) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "UTL_MIS"
         command_to_send["execTimeDouble"] = unixtime
         self._send_cmd(command_to_send)
 
-        time.sleep(0.1)
+        time.sleep(sleep_sec)
 
     def get_obc_info(self) -> dict:
         return self.obc_info
@@ -298,9 +304,9 @@ class Operation:
 
         return command_to_send
 
-    def _send_cmd(self, command: dict) -> None:
+    def _send_cmd(self, command: dict, command_type: CmdType = CmdType.TypeB) -> None:
         response = self.client.post(
-            "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
+            "{}/api/operations/{}/cmd".format(self.url, self.operation_id) + ("_typeA" if command_type is CmdType.TypeA else ""),
             json={"command": command},
             headers=self.authorized_headers,
         ).json()
