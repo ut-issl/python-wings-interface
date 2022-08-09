@@ -208,10 +208,10 @@ class Operation:
 
         return telemetry_data, received_time
 
-    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1, command_type: CmdType = CmdType.TypeB) -> None:
+    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1, cmd_type: CmdType = CmdType.TypeB) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "RT"
-        self._send_cmd(command_to_send, command_type)
+        self._send_cmd(command_to_send, cmd_type)
 
         time.sleep(sleep_sec)
 
@@ -304,9 +304,9 @@ class Operation:
 
         return command_to_send
 
-    def _send_cmd(self, command: dict, command_type: CmdType = CmdType.TypeB) -> None:
+    def _send_cmd(self, command: dict, cmd_type: CmdType = CmdType.TypeB) -> None:
         response = self.client.post(
-            "{}/api/operations/{}/cmd".format(self.url, self.operation_id) + ("_typeA" if command_type is CmdType.TypeA else ""),
+            "{}/api/operations/{}/cmd".format(self.url, self.operation_id) + ("_typeA" if cmd_type is CmdType.TypeA else ""),
             json={"command": command},
             headers=self.authorized_headers,
         ).json()
