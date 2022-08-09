@@ -208,10 +208,10 @@ class Operation:
 
         return telemetry_data, received_time
 
-    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1) -> None:
+    def send_rt_cmd(self, cmd_code: int, cmd_params_value: tuple, component: str = "", sleep_sec: float = 0.1, command_type: CmdType = CmdType.TypeB) -> None:
         command_to_send = self._generate_cmd_dict(cmd_code, cmd_params_value, component)
         command_to_send["execType"] = "RT"
-        self._send_cmd(command_to_send)
+        self._send_cmd(command_to_send, command_type)
 
         time.sleep(sleep_sec)
 
