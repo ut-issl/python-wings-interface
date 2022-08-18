@@ -330,7 +330,7 @@ class Operation:
 
         # MOBC でキューイングされるか？
         if is_via_mobc:
-            command_to_send["is_via_mobc"] = "true"
+            command_to_send["isViaMobc"] = True
 
         # paramは型情報が必要なので、最初に読み込んだコマンド情報から生成
         for i in range(len(command["params"])):
