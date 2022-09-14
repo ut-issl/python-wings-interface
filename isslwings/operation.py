@@ -16,9 +16,9 @@ default_obc_info = {
     "name": "MOBC",
     "hk_tlm_info": {
         "tlm_name": "HK",
-        "cmd_counter": "OBC_GS_CMD_COUNTER",
-        "cmd_last_exec_id": "OBC_GS_CMD_LAST_EXEC_ID",
-        "cmd_last_exec_sts": "OBC_GS_CMD_LAST_EXEC_STS",
+        "cmd_counter": "OBC.GS_CMD.COUNTER",
+        "cmd_last_exec_id": "OBC.GS_CMD.LAST_EXEC.ID",
+        "cmd_last_exec_sts": "OBC.GS_CMD.LAST_EXEC.EXEC_STS",
     },
 }
 
