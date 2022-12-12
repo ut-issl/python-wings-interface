@@ -85,7 +85,7 @@ def _send_cmd_and_confirm(
         command_count_after = tlm_HK[hk_tlm_name + "." + hk_tlm_info["cmd_counter"]]
         command_exec_id = tlm_HK[hk_tlm_name + "." + hk_tlm_info["cmd_last_exec_id"]]
 
-        if command_count_after > command_count_before and command_exec_id == cmd_code:
+        if command_count_after != command_count_before and command_exec_id == cmd_code:
             return tlm_HK[hk_tlm_name + "." + hk_tlm_info["cmd_last_exec_sts"]]
 
     raise Exception("No response to command code:" + str(cmd_code) + ".")
