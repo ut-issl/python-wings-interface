@@ -5,7 +5,7 @@ import json
 import os
 import time
 from typing import Tuple
-import requests
+import httpx
 
 if os.environ.get("USES_DOCKER") is not None:
     default_url = "http://host.docker.internal:5000"
@@ -34,11 +34,13 @@ class Operation:
         self.operation_id = ""
         self.obc_info = obc_info
 
+        self.client = httpx.Client(http2=True, verify=False)
+
         if auto_connect is True:
             self.connect_to_operation_by_idx(0)
 
     def connect_to_operation_by_path_number(self, path_number: str) -> None:
-        response = requests.get("{}/api/operations".format(self.url)).json()
+        response = self.client.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
 
@@ -52,7 +54,7 @@ class Operation:
             raise Exception('Path number "' + path_number + '" was not found.')
 
     def connect_to_operation_by_idx(self, operation_idx: int) -> None:
-        response = requests.get("{}/api/operations".format(self.url)).json()
+        response = self.client.get("{}/api/operations".format(self.url)).json()
 
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
@@ -63,13 +65,13 @@ class Operation:
         self.operation_id = operation_id
 
     def delete_all_operations(self) -> None:
-        response = requests.get("{}/api/operations".format(self.url)).json()
+        response = self.client.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
             # operation dows not exist
             return
 
         for operation_info in response["data"]:
-            response = requests.delete(
+            response = self.client.delete(
                 "{}/api/operations/{}".format(self.url, operation_info["id"]),
             )
 
@@ -78,7 +80,7 @@ class Operation:
 
     def start_and_connect_to_new_operation(self, component_name: str):
         # まずはコンポーネント名からIDへの対応を取りに行く
-        response = requests.get("{}/api/components".format(self.url)).json()
+        response = self.client.get("{}/api/components".format(self.url)).json()
         if not response["data"]:
             raise Exception("An error occurred while fetching components' data.")
 
@@ -95,7 +97,7 @@ class Operation:
         path_number = "{:02d}{:02d}{:02d}-{:02d}{:02d}".format(
             now.year % 100, now.month, now.day, now.hour, now.minute
         )
-        response = requests.post(
+        response = self.client.post(
             "{}/api/operations".format(self.url),
             json={
                 "operation": {
@@ -116,7 +118,7 @@ class Operation:
         self.connect_to_operation_by_path_number(path_number)
 
     def get_latest_tlm(self, tlm_code_id: int) -> Tuple[dict, str]:
-        response = requests.get(
+        response = self.client.get(
             "{}/api/operations/{}/tlm".format(self.url, self.operation_id),
         ).json()
 
@@ -268,7 +270,7 @@ class Operation:
         if component == "":
             component = self.obc_info["name"]
 
-        response = requests.get(
+        response = self.client.get(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
         ).json()
 
@@ -301,7 +303,7 @@ class Operation:
         return command_to_send
 
     def _send_cmd(self, command: dict) -> None:
-        response = requests.post(
+        response = self.client.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
         ).json()
