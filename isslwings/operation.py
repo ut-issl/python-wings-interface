@@ -38,9 +38,7 @@ class Operation:
             self.connect_to_operation_by_idx(0)
 
     def connect_to_operation_by_path_number(self, path_number: str) -> None:
-        response = requests.get(
-            "{}/api/operations".format(self.url)
-        ).json()
+        response = requests.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
 
@@ -54,9 +52,7 @@ class Operation:
             raise Exception('Path number "' + path_number + '" was not found.')
 
     def connect_to_operation_by_idx(self, operation_idx: int) -> None:
-        response = requests.get(
-            "{}/api/operations".format(self.url)
-        ).json()
+        response = requests.get("{}/api/operations".format(self.url)).json()
 
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
@@ -67,9 +63,7 @@ class Operation:
         self.operation_id = operation_id
 
     def delete_all_operations(self) -> None:
-        response = requests.get(
-            "{}/api/operations".format(self.url)
-        ).json()
+        response = requests.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
             # operation dows not exist
             return
@@ -84,9 +78,7 @@ class Operation:
 
     def start_and_connect_to_new_operation(self, component_name: str):
         # まずはコンポーネント名からIDへの対応を取りに行く
-        response = requests.get(
-            "{}/api/components".format(self.url)
-        ).json()
+        response = requests.get("{}/api/components".format(self.url)).json()
         if not response["data"]:
             raise Exception("An error occurred while fetching components' data.")
 
