@@ -107,7 +107,6 @@ class Operation:
                 raise Exception("Failed to delete operation")
 
     def start_and_connect_to_new_operation(self, component_name: str):
-
         # まずはコンポーネント名からIDへの対応を取りに行く
         response = self.client.get(
             "{}/api/components".format(self.url), headers=self.authorized_headers
@@ -175,7 +174,6 @@ class Operation:
         telemetries = response_data["telemetries"]
 
         for telemetry in telemetries:
-
             # TODO: テレメデータがない時の例外処理を加える
 
             # strで読み込んでしまっているので、適切な型へcastする
