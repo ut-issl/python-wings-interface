@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import datetime
-import json
 import os
 import time
 from typing import Tuple
@@ -22,14 +21,6 @@ default_obc_info = {
     },
 }
 
-default_authentication_info = {
-    "client_id": "hoge_id",
-    "client_secret": "hoge_secret",
-    "grant_type": "hoge",
-    "username": "hoge@fuga",
-    "password": "piyopiyo",
-}
-
 
 class Operation:
     def __init__(
@@ -37,33 +28,18 @@ class Operation:
         url: str = default_url,
         auto_connect: bool = True,
         obc_info: dict = default_obc_info,
-        authentication_info: dict = default_authentication_info,
     ) -> None:
         self.url = url
         self.operation_id = ""
         self.obc_info = obc_info
-        self.authorized_headers = {}  # 認証が必要
 
-        # 認証を入れていく
         self.client = httpx.Client(http2=True, verify=False)
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        contents = ""
-        for key in authentication_info.keys():
-            contents += f"{key}={authentication_info[key]}&"
-        response_with_token = self.client.post(
-            f"{self.url}/connect/token", headers=headers, content=contents.rstrip("&")
-        )
-        access_token = json.loads(response_with_token.text)["access_token"]
-
-        self.authorized_headers = dict(Authorization=f"Bearer {access_token}")
 
         if auto_connect is True:
             self.connect_to_operation_by_idx(0)
 
     def connect_to_operation_by_path_number(self, path_number: str) -> None:
-        response = self.client.get(
-            "{}/api/operations".format(self.url), headers=self.authorized_headers
-        ).json()
+        response = self.client.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
 
@@ -77,9 +53,7 @@ class Operation:
             raise Exception('Path number "' + path_number + '" was not found.')
 
     def connect_to_operation_by_idx(self, operation_idx: int) -> None:
-        response = self.client.get(
-            "{}/api/operations".format(self.url), headers=self.authorized_headers
-        ).json()
+        response = self.client.get("{}/api/operations".format(self.url)).json()
 
         if not response["data"]:
             raise Exception("Selected operation does not exist.")
@@ -90,9 +64,7 @@ class Operation:
         self.operation_id = operation_id
 
     def delete_all_operations(self) -> None:
-        response = self.client.get(
-            "{}/api/operations".format(self.url), headers=self.authorized_headers
-        ).json()
+        response = self.client.get("{}/api/operations".format(self.url)).json()
         if not response["data"]:
             # operation dows not exist
             return
@@ -100,7 +72,6 @@ class Operation:
         for operation_info in response["data"]:
             response = self.client.delete(
                 "{}/api/operations/{}".format(self.url, operation_info["id"]),
-                headers=self.authorized_headers,
             )
 
             if response.status_code != 204:
@@ -108,9 +79,7 @@ class Operation:
 
     def start_and_connect_to_new_operation(self, component_name: str):
         # まずはコンポーネント名からIDへの対応を取りに行く
-        response = self.client.get(
-            "{}/api/components".format(self.url), headers=self.authorized_headers
-        ).json()
+        response = self.client.get("{}/api/components".format(self.url)).json()
         if not response["data"]:
             raise Exception("An error occurred while fetching components' data.")
 
@@ -127,10 +96,6 @@ class Operation:
         path_number = "{:02d}{:02d}{:02d}-{:02d}{:02d}".format(
             now.year % 100, now.month, now.day, now.hour, now.minute
         )
-
-        headers = self.authorized_headers
-        headers["Content-Type"] = "application/json"
-
         response = self.client.post(
             "{}/api/operations".format(self.url),
             json={
@@ -144,7 +109,7 @@ class Operation:
                     "planId": "",
                 }
             },
-            headers=headers,
+            headers={"Content-Type": "application/json"},
         )
         if response.status_code != 201:
             raise Exception("Failed to start operation.")
@@ -154,7 +119,6 @@ class Operation:
     def get_latest_tlm(self, tlm_code_id: int) -> Tuple[dict, str]:
         response = self.client.get(
             "{}/api/operations/{}/tlm".format(self.url, self.operation_id),
-            headers=self.authorized_headers,
         ).json()
 
         if not response["data"]:
@@ -307,7 +271,6 @@ class Operation:
 
         response = self.client.get(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
-            headers=self.authorized_headers,
         ).json()
 
         if not response["data"]:
@@ -342,7 +305,6 @@ class Operation:
         response = self.client.post(
             "{}/api/operations/{}/cmd".format(self.url, self.operation_id),
             json={"command": command},
-            headers=self.authorized_headers,
         ).json()
 
         if response["ack"] is False:
