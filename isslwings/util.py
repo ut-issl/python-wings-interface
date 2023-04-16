@@ -20,6 +20,22 @@ def generate_and_receive_tlm(ope: Operation, cmd_code_generate_tlm: int, tlm_cod
     raise Exception("No response to GENERATE_TLM.")
 
 
+def forward_and_receive_tlm(ope: Operation, cmd_code_tg_forward_tlm: int, apid: int, tlm_code: int) -> dict:
+    _, received_time_prev = ope.get_latest_tlm(tlm_code)
+    # FIXME: get_latest_tlm 側の APID 対応
+
+    ope.send_rt_cmd(cmd_code_tg_forward_tlm, (apid, tlm_code, 2, 0, 1))
+
+    for _ in range(50):
+        time.sleep(0.2)
+
+        tlm, received_time_after = ope.get_latest_tlm(tlm_code)
+        if received_time_prev != received_time_after:
+            return tlm
+
+    raise Exception("No response to TG_FORWARD_TLM.")
+
+
 # FIXME: MOBC経由からの2nd OBCへのコマンドは，GS counterで confirm できないので，一旦対応しない．別関数つくる？
 def send_rt_cmd_and_confirm(
     ope: Operation, cmd_code: int, cmd_args: tuple, tlm_code_hk: int
