@@ -20,7 +20,9 @@ def generate_and_receive_tlm(ope: Operation, cmd_code_generate_tlm: int, tlm_cod
     raise Exception("No response to GENERATE_TLM.")
 
 
-def forward_and_receive_tlm(ope: Operation, cmd_code_tg_forward_tlm: int, apid: int, tlm_code: int) -> dict:
+def forward_and_receive_tlm(
+    ope: Operation, cmd_code_tg_forward_tlm: int, apid: int, tlm_code: int
+) -> dict:
     _, received_time_prev = ope.get_latest_tlm(tlm_code)
     # FIXME: get_latest_tlm 側の APID 対応
 
