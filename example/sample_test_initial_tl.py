@@ -22,7 +22,7 @@ def test_initial_tl():
     assert ret == "SUC"
 
     tlm_BL = wings.util.generate_and_receive_tlm(
-        ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_BL
+        ope, c2a_enum.Cmd_CODE_TG_GENERATE_MS_TLM, c2a_enum.Tlm_CODE_BL
     )
     assert tlm_BL["BL.CMD0_ID"] == c2a_enum.Cmd_CODE_BCT_ROTATE_BLOCK
     assert tlm_BL["BL.CMD0_TI"] == 0
@@ -39,7 +39,7 @@ def test_add_bc():
     )
     assert ret == "SUC"
     tlm_HK = wings.util.generate_and_receive_tlm(
-        ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_HK
+        ope, c2a_enum.Cmd_CODE_TG_GENERATE_MS_TLM, c2a_enum.Tlm_CODE_HK
     )
     assert tlm_HK["HK.OBC_BCT_BLK_PTR"] == 300
     assert tlm_HK["HK.OBC_BCT_CMD_PTR"] == 0
@@ -52,7 +52,7 @@ def test_add_bc():
         c2a_enum.Tlm_CODE_HK,
     )
     tlm_HK = wings.util.generate_and_receive_tlm(
-        ope, c2a_enum.Cmd_CODE_GENERATE_TLM, c2a_enum.Tlm_CODE_HK
+        ope, c2a_enum.Cmd_CODE_TG_GENERATE_MS_TLM, c2a_enum.Tlm_CODE_HK
     )
     assert tlm_HK["HK.OBC_BCT_BLK_PTR"] == 300
     assert tlm_HK["HK.OBC_BCT_CMD_PTR"] == 1
