@@ -5,10 +5,12 @@ from typing import Callable
 from .operation import Operation
 
 
-def generate_and_receive_tlm(ope: Operation, cmd_code_generate_tlm: int, tlm_code: int) -> dict:
+def generate_and_receive_tlm(
+    ope: Operation, cmd_code_tg_generate_ms_tlm: int, tlm_code: int
+) -> dict:
     _, received_time_prev = ope.get_latest_tlm(tlm_code)
 
-    ope.send_rt_cmd(cmd_code_generate_tlm, (0x40, tlm_code, 1))
+    ope.send_rt_cmd(cmd_code_tg_generate_ms_tlm, (tlm_code,))
 
     for _ in range(50):
         time.sleep(0.2)
