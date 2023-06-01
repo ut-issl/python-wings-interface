@@ -6,11 +6,11 @@ from .operation import Operation
 
 
 def generate_and_receive_tlm(
-    ope: Operation, cmd_code_tg_generate_ms_tlm: int, tlm_code: int
+    ope: Operation, cmd_code_tg_generate_rt_tlm: int, tlm_code: int
 ) -> dict:
     _, received_time_prev = ope.get_latest_tlm(tlm_code)
 
-    ope.send_rt_cmd(cmd_code_tg_generate_ms_tlm, (tlm_code,))
+    ope.send_rt_cmd(cmd_code_tg_generate_rt_tlm, (tlm_code,))
 
     for _ in range(50):
         time.sleep(0.2)
