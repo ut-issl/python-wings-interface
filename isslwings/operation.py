@@ -129,7 +129,8 @@ class Operation:
         tlm_code_is_found = False
         for response_data in response["data"]:
             if "tlm_apid" in self.obc_info:
-                if int(response_data["packetInfo"]["tlmApid"], base=16) != int(self.obc_info["tlm_apid"], 16):
+                tlm_apid = int(self.obc_info["tlm_apid"], 16)
+                if int(response_data["packetInfo"]["tlmApid"], base=16) != tlm_apid:
                     continue
             if int(response_data["packetInfo"]["id"], base=16) == tlm_code_id:
                 tlm_code_is_found = True
