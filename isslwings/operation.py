@@ -13,6 +13,7 @@ else:
 
 default_obc_info = {
     "name": "MOBC",
+    # "tlm_apid": "0x00", 複数 OBC のテレメを用いる場合は設定する
     "hk_tlm_info": {
         "tlm_name": "HK",
         "cmd_counter": "OBC.GS_CMD.COUNTER",
@@ -127,6 +128,10 @@ class Operation:
         # 該当するtlm_code_nameのテレメ情報を探す
         tlm_code_is_found = False
         for response_data in response["data"]:
+            if "tlm_apid" in self.obc_info:
+                tlm_apid = int(self.obc_info["tlm_apid"], 16)
+                if int(response_data["packetInfo"]["tlmApid"], base=16) != tlm_apid:
+                    continue
             if int(response_data["packetInfo"]["id"], base=16) == tlm_code_id:
                 tlm_code_is_found = True
                 break
