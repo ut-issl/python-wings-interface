@@ -13,7 +13,7 @@ else:
 
 default_obc_info = {
     "name": "MOBC",
-    "tlm_apid": "0x00",
+    # "tlm_apid": "0x00", 複数 OBC のテレメを用いる場合は設定する
     "hk_tlm_info": {
         "tlm_name": "HK",
         "cmd_counter": "OBC.GS_CMD.COUNTER",
